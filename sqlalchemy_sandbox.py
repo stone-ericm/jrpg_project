@@ -135,3 +135,41 @@ print(user_table.c.id + 5)
 
 print(user_table.c.fullname + "some name")
 #"user".fullname || :fullname_1
+
+#all the rows where the username is either wendy, mary, or ed
+print(user_table.c.username.in_(["wendy", "mary", "ed"]))
+#"user".username IN (:username_1, :username_2, :username_3)
+
+###########################################
+#SELECT
+###########################################
+engine.execute(
+        user_table.select().where(user_table.c.username == 'ed')
+)
+
+from sqlalchemy import select
+
+select_stmt = select([user_table.c.username, user_table.c.fullname]).where(user_table.c.username == 'ed')
+result = conn.execute(select_stmt)
+#####################
+#Order by
+#####################
+
+select_stmt = select([user_table]).order_by(user_table.c.username)
+result = conn.execute(select_stmt.fetchall)
+
+###########################################
+#INSERT
+###########################################
+insert_stmt = user_table.insert().values(username = 'ed', fullname = 'Ed Jones')
+conn = engine.connect()
+result = conn.execute(insert_stmt)
+###########################################
+#GRAB RECENT INSERTED ID
+###########################################
+result.inserted_primary_key
+
+conn.execute(user_table.insert(), [
+    {'username': 'jack', 'fullname': 'Jack Burger'},
+    {'username': 'wendy', 'fullname': 'Wendy Weathersmith'}
+])
