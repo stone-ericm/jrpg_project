@@ -1,68 +1,76 @@
 from sqlalchemy import create_engine, Table, Column, Enum, Integer, String, MetaData, ForeignKey, ForeignKeyConstraint, Boolean
+from sqlalchemy.ext.declarative import declarative_base
 
+Base = declarative_base()
 engine = create_engine('sqlite:///app.db')
 
 metadata = MetaData()
 
-player = Table('player', metadata,
-    Column('gender', Enum('m', 'f', 'o')),
-    Column('name', String),
-    Column('hp', Integer),
-    Column('mp', Integer),
-    Column('strength', Integer),
-    Column('fortitude', Integer),
-    Column('agility', Integer),
-    Column('skill_points', Integer),
-    Column('gold', Integer),
-    Column('poisoned', Boolean)
-    )
-
-skills = Table('skills', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('name', String),
-    Column('purchase_cost', Integer),
-    Column('use_cost', Integer),
-    Column('damage_heal', Integer),
-    Column('poisonous', Boolean)
-    )
-
-items = Table('items', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('buy_value', Integer),
-    Column('sell_value', Integer),
-    Column('name', String),
-    Column('itype', Enum('weapon', 'healing_item', 'head', 'chest', 'legs', 'feet', 'key_items', 'repel')),
-    Column('attack_mod', Integer),
-    Column('defense_mod', Integer),
-    Column('agility_mod', Integer),
-    Column('recov_amnt', Integer),
-    Column('hp_mp', Enum('hp', 'mp')),
-    Column('enemy_id', Integer, ForeignKey('enemies.id'))
-    )
+class Player(Base):
+    __tablename__ = 'players'
     
-enemies = Table('enemies', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('name', String),
-    Column('hp', Integer),
-    Column('mp', Integer),
-    Column('strength', Integer),
-    Column('fortitude', Integer),
-    Column('agility', Integer),
-    Column('poisoned', Boolean),
-    Column('gold', Integer),
-    Column('boss', Boolean)
-)
+    id = Column(Integer, primary_key=True),
+    gender = Column(Enum('m', 'f', 'o')),
+    name = Column(String),
+    hp = Column(Integer),
+    mp = Column(Integer),
+    strength = Column(Integer),
+    fortitude = Column(Integer),
+    agility = Column(Integer),
+    skill_points = Column(Integer),
+    gold = Column(Integer),
+    poisoned = Column(Boolean)
 
-allies = Table('allies', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('name', String),
-    Column('hp', Integer),
-    Column('mp', Integer),
-    Column('strength', Integer),
-    Column('fortitude', Integer),
-    Column('agility', Integer),
-    Column('poisoned', Boolean)
-)
+class Skill(Base):
+    __tablename__ = 'skills'
+    
+    id = Column(Integer, primary_key=True),
+    name = Column(String),
+    purchase_cost = Column(Integer),
+    use_cost = Column(Integer),
+    damage_heal = Column(Integer),
+    poisonous = Column(Boolean)
+
+class Item(Base):
+    __tablename__ = 'items'
+    
+    id = Column(Integer, primary_key=True),
+    buy_value = Column(Integer),
+    sell_value = Column(Integer),
+    name = Column(String),
+    itype = Column(Enum('weapon', 'healing_item', 'head', 'chest', 'legs', 'feet', 'key_items', 'repel')),
+    attack_mod = Column(Integer),
+    defense_mod = Column(Integer),
+    agility_mod = Column(Integer),
+    recov_amnt = Column(Integer),
+    hp_mp = Column(Enum('hp', 'mp')),
+    enemy_id = Column(Integer, ForeignKey('enemies.id'))
+
+class Enemy(Base):
+    __tablename__ = 'enemies'
+    
+    id = Column(Integer, primary_key=True),
+    name = Column(String),
+    hp = Column(Integer),
+    mp = Column(Integer),
+    strength = Column(Integer),
+    fortitude = Column(Integer),
+    agility = Column(Integer),
+    poisoned = Column(Boolean),
+    gold = Column(Integer),
+    boss = Column(Boolean)
+
+class Ally(Base):
+    __tablename__ = 'allies'
+    
+    id = Column(Integer, primary_key=True),
+    name = Column(String),
+    hp = Column(Integer),
+    mp = Column(Integer),
+    strength = Column(Integer),
+    fortitude = Column(Integer),
+    agility = Column(Integer),
+    poisoned = Column(Boolean)
 
 ########################################################
 #MERCHANTS
@@ -91,7 +99,7 @@ elder = Table('elder', metadata,
     Column('dojo_id', Integer, ForeignKey('dojo.id'))
 )
 
-metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 ## TODO
-## tables for items, spells, enemies, shop inventories, user save file
+## MAKE WORK

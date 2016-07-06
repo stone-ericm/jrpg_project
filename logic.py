@@ -7,7 +7,11 @@ class GameState:
     self.location = self.location
 
 class Player:
-  genders = {'m':{"sub":"he", "do":"him", "pos":"his"}, 'f':{"sub":"she", "do":"her", "pos":"her"}, 'o':{"sub":"they", "do":"them", "pos":"their"}}
+  genders = {
+    'm':{"sub":"he", "do":"him", "pos":"his"}, 
+    'f':{"sub":"she", "do":"her", "pos":"her"}, 
+    'o':{"sub":"they", "do":"them", "pos":"their"}
+  }
 
   def __init__(self):
     self.gender = self.gender()
