@@ -20,7 +20,7 @@ skills_dict = {}
 player_max_hp = player.hp
 for each in skills:
     skills_dict[each.name] = each
-
+skills_list = sorted(list(skills_dict.keys()))
 #player = alchemy.engine.execute(
    #     player_table.select().where(player_table.c.id == 1)
 #)
@@ -29,36 +29,39 @@ for each in skills:
 
 # print(player[0].name)
 # print(enemy[0].name)
-def enemy_attack(enemy, player):
+def enemy_attack():
     dodge = input("Enemy {} is about to attack!\nDodge:\n[L]eft\n[R]right\n[U]p\n[D]own\n".format(enemy.name))
     if dodge.lower() == random.choice(['l', 'r', 'u', 'd']):
         print("You narrowly dodged {}'s attack!".format(enemy.name))
     else:
         player.hp -= enemy.strength
-        if player.hp <= 0:
-            print("You were defeated!")
+        print("You were hit for {} points! {} hp remaining.".format(enemy.strength, player.hp))
 
-def player_attack(enemy, player, skills_dict):
+def player_attack():
     choice = input("What would you like to do?\n[A]ttack\n[I]tem\n[R]un\n")
     if choice.lower() == 'a':
-        attack = input([each for each in skills_dict.keys()])
-        if attack in skills_dict.keys():
-            damage = skills_dict[attack].damage_heal
+        for index, skill in enumerate(skills_list, start=1):
+            print(index, skill)
+        attack = int(input())
+        if skills_list[attack-1]:
+            damage = skills_dict[skills_list[attack-1]].damage_heal
             if damage > 0:
                 enemy.hp -= damage
+                print("You hit for {} points! Enemy has {} hp remaining.".format(damage, enemy.hp))
             else:
                 player.hp -= damage
                 if player.hp > player_max_hp:
                     player.hp = player_max_hp
+                print("You healed for {} points! {} hp remaining".format(-damage, player.hp))
 
 
-def random_encounter(enemy, player, skills_dict):
+def random_encounter():
     print("An enemy {} has appeared!".format(enemy.name))
     # speed check
     if enemy.agility > player.agility:
         while enemy.hp >= 0 and player.hp >= 0:
-            enemy_attack(enemy, player)
-            player_attack(enemy, player, skills_dict)
+            enemy_attack()
+            player_attack()
         if player.hp <= 0:
             print("You were defeated!")
         elif enemy.hp <= 0:
@@ -67,13 +70,20 @@ def random_encounter(enemy, player, skills_dict):
     
     elif player.agility >= enemy.agility:
         while enemy.hp >= 0 and player.hp >= 0:
-            player_attack(enemy, player, skills_dict)
-            enemy_attack(enemy, player)
+            player_attack()
+            enemy_attack()
         if player.hp <= 0:
             print("You were defeated!")
         elif enemy.hp <= 0:
-            print("You defeated {}! {} gold!".format(enemy.name, enemy.gold))
+            print("You defeated {}! You gained {} gold!".format(enemy.name, enemy.gold))
             player.gold += enemy.gold
             
 if __name__ == "__main__":
-    random_encounter(enemy, player, skills_dict)
+    random_encounter()
+    
+##BUGS
+# enemy doesn't die at 0
+# implement cast costs
+# add in basic attack
+# add in run
+# add in items
