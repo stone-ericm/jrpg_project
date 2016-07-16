@@ -59,9 +59,10 @@ def random_encounter():
     print("An enemy {} has appeared!".format(enemy.name))
     # speed check
     if enemy.agility > player.agility:
-        while enemy.hp >= 0 and player.hp >= 0:
+        while enemy.hp > 0 and player.hp > 0:
             enemy_attack()
-            player_attack()
+            if player.hp > 0:
+                player_attack()
         if player.hp <= 0:
             print("You were defeated!")
         elif enemy.hp <= 0:
@@ -69,9 +70,10 @@ def random_encounter():
             player.gold += enemy.gold
     
     elif player.agility >= enemy.agility:
-        while enemy.hp >= 0 and player.hp >= 0:
+        while enemy.hp > 0 and player.hp > 0:
             player_attack()
-            enemy_attack()
+            if enemy.hp > 0:
+                enemy_attack()
         if player.hp <= 0:
             print("You were defeated!")
         elif enemy.hp <= 0:
@@ -81,8 +83,7 @@ def random_encounter():
 if __name__ == "__main__":
     random_encounter()
     
-##BUGS
-# enemy doesn't die at 0
+##TODO
 # implement cast costs
 # add in basic attack
 # add in run
