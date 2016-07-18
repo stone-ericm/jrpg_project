@@ -1,7 +1,7 @@
 import sqlalchemy as alchemy
 from models import Player, Enemy, SkillOwnership, Skill
 from sqlalchemy.ext.declarative import declarative_base
-import random
+import random, sys
 
 engine = alchemy.create_engine("sqlite:///app.db")
 # Base = declarative_base()
@@ -29,6 +29,15 @@ skills_list = sorted(list(skills_dict.keys()))
 
 # print(player[0].name)
 # print(enemy[0].name)
+def escape_battle():
+    F = random.randint(0, 255)
+    if ((player.agility*128/enemy.agility)+30)%256 > F:
+        print ("You successfully escaped!")
+        return True
+    else:
+        print ("Can't escape!")
+        return False
+
 def enemy_attack():
     dodge = input("Enemy {} is about to attack!\nDodge:\n[L]eft\n[R]right\n[U]p\n[D]own\n".format(enemy.name))
     if dodge.lower() == random.choice(['l', 'r', 'u', 'd']):
@@ -38,13 +47,19 @@ def enemy_attack():
         print("You were hit for {} points! {} hp remaining.".format(enemy.strength, player.hp))
 
 def player_attack():
-    choice = input("What would you like to do?\n[A]ttack\n[I]tem\n[R]un\n")
-    if choice.lower() == 'a':
-        for index, skill in enumerate(skills_list, start=1):
-            print(index, skill)
-        attack = int(input())
-        if skills_list[attack-1]:
-            damage = skills_dict[skills_list[attack-1]].damage_heal
+    while True:
+        choice = input("What would you like to do?\n[A]ttack\n[I]tem\n[R]un\n")
+        if choice.lower() == 'a':
+            choice = input("How would you like to attack?\n[A]ttack\n[S]kills\n")
+            if choice.lower() == 'a':
+                damage = player.strength/enemy.fortitude
+            elif choice.lower() == 's':
+                for index, skill in enumerate(skills_list, start=1):
+                    print(index, skill)
+                attack = int(input())
+                if skills_list[attack-1]:
+                    damage = skills_dict[skills_list[attack-1]].damage_heal
+    ###Damage calculation
             if damage > 0:
                 enemy.hp -= damage
                 print("You hit for {} points! Enemy has {} hp remaining.".format(damage, enemy.hp))
@@ -53,7 +68,12 @@ def player_attack():
                 if player.hp > player_max_hp:
                     player.hp = player_max_hp
                 print("You healed for {} points! {} hp remaining".format(-damage, player.hp))
-
+            break
+        elif choice.lower() == 'i':
+            pass
+        elif choice.lower() == 'r':
+            if escape_battle() == True:
+                return "escaped"
 
 def random_encounter():
     print("An enemy {} has appeared!".format(enemy.name))
@@ -62,7 +82,8 @@ def random_encounter():
         while enemy.hp > 0 and player.hp > 0:
             enemy_attack()
             if player.hp > 0:
-                player_attack()
+                if player_attack() == "escaped":
+                    break
         if player.hp <= 0:
             print("You were defeated!")
         elif enemy.hp <= 0:
@@ -71,7 +92,8 @@ def random_encounter():
     
     elif player.agility >= enemy.agility:
         while enemy.hp > 0 and player.hp > 0:
-            player_attack()
+            if player_attack() == "escaped":
+                break
             if enemy.hp > 0:
                 enemy_attack()
         if player.hp <= 0:
@@ -85,6 +107,5 @@ if __name__ == "__main__":
     
 ##TODO
 # implement cast costs
-# add in basic attack
-# add in run
 # add in items
+#Skills are too weak - damage should be adjusted based on player level
