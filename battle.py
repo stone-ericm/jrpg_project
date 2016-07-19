@@ -2,6 +2,7 @@ import sqlalchemy as alchemy
 from models import Player, Enemy, SkillOwnership, Skill
 from sqlalchemy.ext.declarative import declarative_base
 import random, sys
+from termcolor import colored, cprint
 
 engine = alchemy.create_engine("sqlite:///app.db")
 # Base = declarative_base()
@@ -55,7 +56,12 @@ def player_attack():
                 damage = player.strength/enemy.fortitude
             elif choice.lower() == 's':
                 for index, skill in enumerate(skills_list, start=1):
-                    print(index, skill)
+                    cost = skills_dict[skill].use_cost
+                    output = index, skill, cost
+                    if player.mp >= cost:
+                        cprint(output, "green")
+                    else:
+                        cprint(output, "red")
                 attack = int(input())
                 if skills_list[attack-1]:
                     damage = skills_dict[skills_list[attack-1]].damage_heal
