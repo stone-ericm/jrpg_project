@@ -30,6 +30,7 @@ for each in item_ownership:
     items_dict[item_obj.name] = [item_obj, each.quantity]
 items_list = sorted(list(items_dict.keys()))
 
+dodge_options = ['l', 'r', 'u', 'd']
 # items = [session.query(Item).filter_by(id = each.item_id).all()[0] for each in session.query(ItemOwnership).filter_by(player_id = player.id).all()]
 # for each in items:
 #     items_dict[each.name] = each
@@ -52,8 +53,11 @@ def escape_battle():
         return False
 
 def enemy_attack():
-    dodge = input("Enemy {} is about to attack!\nDodge:\n[L]eft\n[R]right\n[U]p\n[D]own\n".format(enemy.name))
-    if dodge.lower() == random.choice(['l', 'r', 'u', 'd']):
+    while True:
+        dodge = input("Enemy {} is about to attack!\nDodge:\n[L]eft\n[R]right\n[U]p\n[D]own\n".format(enemy.name))
+        if dodge in dodge_options:
+            break
+    if dodge.lower() == random.choice(dodge_options):
         print("You narrowly dodged {}'s attack!".format(enemy.name))
     else:
         damage = int(((2*enemy.level+10)/250)*(enemy.strength/player.fortitude) * 1 + 2)
