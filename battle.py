@@ -69,7 +69,7 @@ def player_attack():
         choice = input("What would you like to do?\n[A]ttack\n[I]tem\n[R]un\n")
         if choice.lower() == 'a':
             while True:
-                choice = input("How would you like to attack?\n[P]hysical Attack\n[S]kills\n")
+                choice = input("How would you like to attack?\n[P]hysical Attack\n[S]kills\n[R]eturn\n")
                 if choice.lower() == 'p':
                     damage = int(((2*player.level+10)/250) * (player.strength/enemy.fortitude) * 1 + 2)
                     break
@@ -85,8 +85,10 @@ def player_attack():
                                 cant_cast.append(index)
                                 # print(cant_cast)
                                 cprint(output, "red")
+                        print("[R]eturn")
                         try:
-                            attack = int(input())
+                            attack = input()
+                            attack = int(attack)
                             if attack > 0:
                                 if attack not in cant_cast:
                                     # print(attack, cant_cast)
@@ -104,8 +106,11 @@ def player_attack():
                             else:
                                 pass
                         except ValueError:
-                            pass
+                            if attack.lower() == 'r':
+                                return player_attack()
                     break
+                elif choice.lower() == 'r':
+                    return player_attack()
             if damage > 0:
                 enemy.hp -= damage
                 if enemy.hp > 0:
@@ -122,28 +127,31 @@ def player_attack():
                 for index, item in enumerate(items_list, start=1):
                     quantity = items_dict[item][1]
                     print(index, item, "Quantity:" + str(quantity))
-                    try:
-                        item_use = int(input())
-                        if item_use > 0:
-                            try:
-                                # items_list[item_use-1]:
-                                #removes 1 of item from inventory
-                                items_dict[items_list[item_use-1]][1] -= 1
-                                heal = items_dict[items_list[item_use-1]][0].recov_amnt
-                                if player.hp + heal > player_max_hp:
-                                    heal = player_max_hp - player.hp
-                                    player.hp = player_max_hp
-                                else:
-                                    player.hp += heal
-                                print("You were healed for {} points! {} hp remaining.".format(heal, player.hp))
-                                if items_dict[items_list[item_use-1]][1] == 0:
-                                    del items_dict[items_list[item_use-1]][1]
-                                    items_list.remove(items_list[item_use-1])
-                                # print("HELP?")
-                            except IndexError:
-                                pass
-                    except ValueError:
-                        pass
+                print("[R]eturn")
+                try:
+                    item_use = input()
+                    item_use = int(item_use)
+                    if item_use > 0:
+                        try:
+                            # items_list[item_use-1]:
+                            #removes 1 of item from inventory
+                            items_dict[items_list[item_use-1]][1] -= 1
+                            heal = items_dict[items_list[item_use-1]][0].recov_amnt
+                            if player.hp + heal > player_max_hp:
+                                heal = player_max_hp - player.hp
+                                player.hp = player_max_hp
+                            else:
+                                player.hp += heal
+                            print("You were healed for {} points! {} hp remaining.".format(heal, player.hp))
+                            if items_dict[items_list[item_use-1]][1] == 0:
+                                del items_dict[items_list[item_use-1]][1]
+                                items_list.remove(items_list[item_use-1])
+                            # print("HELP?")
+                        except IndexError:
+                            pass
+                except ValueError:
+                    if item_use.lower() == 'r':
+                        return player_attack()
                 break
             break
         elif choice.lower() == 'r':
