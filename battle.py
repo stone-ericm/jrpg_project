@@ -1,5 +1,5 @@
 import sqlalchemy as alchemy
-from models import Player, Enemy, SkillOwnership, Skill
+from models import Player, Enemy, SkillOwnership, Skill, ItemOwnership, Item
 from sqlalchemy.ext.declarative import declarative_base
 import random, sys
 from termcolor import colored, cprint
@@ -16,12 +16,24 @@ metadata.bind = alchemy.engine
 
 player = session.query(Player).filter_by(id=1).all()[0]
 enemy = session.query(Enemy).filter_by(name="Rat").all()[0]
+player_max_hp = player.hp
 skills = [session.query(Skill).filter_by(id = each.skill_id).all()[0] for each in session.query(SkillOwnership).filter_by(player_id = player.id).all()]
 skills_dict = {}
-player_max_hp = player.hp
 for each in skills:
     skills_dict[each.name] = each
+###skills_list should probably be refactored at some point. feels needlessly obfiscated 
 skills_list = sorted(list(skills_dict.keys()))
+item_ownership = session.query(ItemOwnership).filter_by(player_id = player.id).all()
+items_dict = {}
+for each in item_ownership:
+    item_obj = session.query(Item).filter_by(id = each.item_id).all()[0]
+    items_dict[item_obj.name] = [item_obj, each.quantity]
+items_list = sorted(list(items_dict.keys()))
+
+# items = [session.query(Item).filter_by(id = each.item_id).all()[0] for each in session.query(ItemOwnership).filter_by(player_id = player.id).all()]
+# for each in items:
+#     items_dict[each.name] = each
+
 #player = alchemy.engine.execute(
    #     player_table.select().where(player_table.c.id == 1)
 #)
@@ -44,42 +56,96 @@ def enemy_attack():
     if dodge.lower() == random.choice(['l', 'r', 'u', 'd']):
         print("You narrowly dodged {}'s attack!".format(enemy.name))
     else:
-        player.hp -= enemy.strength
-        print("You were hit for {} points! {} hp remaining.".format(enemy.strength, player.hp))
+        damage = int(((2*enemy.level+10)/250)*(enemy.strength/player.fortitude) * 1 + 2)
+        player.hp -= damage
+        print("You were hit for {} points! {} hp remaining.".format(damage, player.hp))
 
 def player_attack():
     while True:
         choice = input("What would you like to do?\n[A]ttack\n[I]tem\n[R]un\n")
         if choice.lower() == 'a':
-            choice = input("How would you like to attack?\n[A]ttack\n[S]kills\n")
-            if choice.lower() == 'a':
-                damage = player.strength/enemy.fortitude
-            elif choice.lower() == 's':
-                for index, skill in enumerate(skills_list, start=1):
-                    cost = skills_dict[skill].use_cost
-                    output = index, skill, cost
-                    if player.mp >= cost:
-                        cprint(output, "green")
-                    else:
-                        cprint(output, "red")
-                attack = int(input())
-                if skills_list[attack-1]:
-                    damage = skills_dict[skills_list[attack-1]].damage_heal
-    ###Damage calculation
+            while True:
+                choice = input("How would you like to attack?\n[P]hysical Attack\n[S]kills\n")
+                if choice.lower() == 'p':
+                    damage = int(((2*player.level+10)/250) * (player.strength/enemy.fortitude) * 1 + 2)
+                    break
+                elif choice.lower() == 's':
+                    while True:
+                        cant_cast = []
+                        for index, skill in enumerate(skills_list, start=1):
+                            cost = skills_dict[skill].use_cost
+                            output = index, skill, "mp:" + str(cost)
+                            if player.mp >= cost:
+                                cprint(output, "green")
+                            else:
+                                cant_cast.append(index)
+                                # print(cant_cast)
+                                cprint(output, "red")
+                        try:
+                            attack = int(input())
+                            if attack > 0:
+                                if attack not in cant_cast:
+                                    # print(attack, cant_cast)
+                                    try:
+                                        # skills_list[attack-1]
+                                        player.mp -= skills_dict[skills_list[attack-1]].use_cost
+                                        damage = skills_dict[skills_list[attack-1]].damage_heal
+                                        damage = int(((2*player.level+10)/250) * (player.strength/enemy.fortitude) * damage + 2)
+                                        break
+                                    except IndexError:
+                                        pass
+                                else:
+                                    print("You do not have enough mp!")
+                                    return player_attack()
+                            else:
+                                pass
+                        except ValueError:
+                            pass
+                    break
             if damage > 0:
                 enemy.hp -= damage
-                print("You hit for {} points! Enemy has {} hp remaining.".format(damage, enemy.hp))
+                if enemy.hp > 0:
+                    print("You hit for {} points! Enemy has {} hp remaining.".format(damage, enemy.hp))
             else:
                 player.hp -= damage
                 if player.hp > player_max_hp:
                     player.hp = player_max_hp
-                print("You healed for {} points! {} hp remaining".format(-damage, player.hp))
+                print("You healed for {} points! {} hp remaining.".format(-damage, player.hp))
             break
         elif choice.lower() == 'i':
-            pass
+##FOR THE MOMENT ONLY IN-BATTLE ITEMS ARE HEALING ITEMS. CODE WILL NEED REFACTORING IF THAT CHANGES
+            while True:
+                for index, item in enumerate(items_list, start=1):
+                    quantity = items_dict[item][1]
+                    print(index, item, "Quantity:" + str(quantity))
+                    try:
+                        item_use = int(input())
+                        if item_use > 0:
+                            try:
+                                # items_list[item_use-1]:
+                                #removes 1 of item from inventory
+                                items_dict[items_list[item_use-1]][1] -= 1
+                                heal = items_dict[items_list[item_use-1]][0].recov_amnt
+                                if player.hp + heal > player_max_hp:
+                                    heal = player_max_hp - player.hp
+                                    player.hp = player_max_hp
+                                else:
+                                    player.hp += heal
+                                print("You were healed for {} points! {} hp remaining.".format(heal, player.hp))
+                                if items_dict[items_list[item_use-1]][1] == 0:
+                                    del items_dict[items_list[item_use-1]][1]
+                                    items_list.remove(items_list[item_use-1])
+                                # print("HELP?")
+                            except IndexError:
+                                pass
+                    except ValueError:
+                        pass
+                break
+            break
         elif choice.lower() == 'r':
             if escape_battle() == True:
                 return "escaped"
+            break
 
 def random_encounter():
     print("An enemy {} has appeared!".format(enemy.name))
@@ -112,6 +178,3 @@ if __name__ == "__main__":
     random_encounter()
     
 ##TODO
-# implement cast costs
-# add in items
-#Skills are too weak - damage should be adjusted based on player level

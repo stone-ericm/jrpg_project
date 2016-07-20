@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, Table, Column, Enum, Integer, String, MetaData, ForeignKey, ForeignKeyConstraint, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-import views, logic
+# import views, logic
 
 
 Base = declarative_base()
@@ -19,6 +19,7 @@ class Player(Base):
     id = Column(Integer, primary_key=True)
     gender = Column(Enum('m', 'f', 'o'))
     name = Column(String)
+    level = Column(Integer)
     hp = Column(Integer)
     mp = Column(Integer)
     strength = Column(Integer)
@@ -50,15 +51,15 @@ class Item(Base):
     __tablename__ = 'items'
     
     id = Column(Integer, primary_key=True)
+    name = Column(String)
     buy_value = Column(Integer)
     sell_value = Column(Integer)
-    name = Column(String)
     itype = Column(Enum('weapon', 'healing_item', 'head', 'chest', 'legs', 'feet', 'key_items', 'repel'))
     attack_mod = Column(Integer)
     defense_mod = Column(Integer)
     agility_mod = Column(Integer)
     recov_amnt = Column(Integer)
-    hp_mp = Column(Enum('hp', 'mp'))
+    hp_mp = Column(Enum('hp', 'mp', 'none'))
     enemy_id = Column(Integer, ForeignKey('enemies.id'))
 
 class Enemy(Base):
@@ -66,6 +67,7 @@ class Enemy(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    level = Column(Integer)
     hp = Column(Integer)
     mp = Column(Integer)
     strength = Column(Integer)
@@ -96,6 +98,13 @@ class SkillOwnership(Base):
     player_id = Column(Integer, ForeignKey('players.id'))
     skill_id = Column(Integer, ForeignKey('skills.id'))
 
+class ItemOwnership(Base):
+    __tablename__ = 'itemownership'
+    
+    id = Column(Integer, primary_key=True)
+    player_id = Column(Integer, ForeignKey('players.id'))
+    item_id = Column(Integer, ForeignKey('items.id'))
+    quantity = Column(Integer)
 ########################################################
 #MERCHANTS
 ########################################################
@@ -129,6 +138,9 @@ class Elder(Base):
     skill_id = Column(Integer, ForeignKey('skills.id'))
     dojo_id = Column(Integer, ForeignKey('dojos.id'))
 
+if __name__ == "__main__":
+    Base.metadata.create_all(engine)
+
 
 ## TODO
-## MAKE WORK
+## change item/enemy drop config to many/many system where enemies drop random from list of possibilities
