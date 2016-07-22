@@ -1,10 +1,56 @@
-import views, models
+from models import *
+import views
+# from battle import *
+from termcolor import colored, cprint
+import time
+import battle
+
+
+Session = alchemy.orm.sessionmaker(bind=engine)
+session = Session()
 
 class GameState:
   
   def __init__(self):
-    self.player = models.Player()
-    self.location = self.location
+    save_files = session.query(Player).filter_by(id=1).all()
+    # save_files = []
+    while True:  
+      print("[N]ew Game")
+      if save_files:
+        print("[C]ontinue")
+      else:
+        cprint("[C]ontinue", "grey")
+      choice = input()
+      if choice.lower() == 'n':
+        for each in views.intro:
+          print (each)
+          cprint("[press Enter to continue]", "grey")
+          input()
+        new = Player(gender = views.gender(self),
+                    name = views.name(),
+                    level = 10,
+                    hp = 50,
+                    mp = 20,
+                    strength = 50,
+                    fortitude = 50,
+                    agility = 45,
+                    skill_points = 0,
+                    gold = 20,
+                    poisoned = False
+        )
+        battle.Battle(new).encounter()
+        break
+      elif choice.lower() == 'c':
+        if save_files:
+          for each in save_files:
+            print(each.name)
+        else:
+          print("You have no saved games.")
+      else:
+        print("Sorry I didn't understand that.")
+    # else:
+    # self.player = 
+    # self.location = self.location
 
 # class Player:
 #   genders = {

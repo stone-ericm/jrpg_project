@@ -1,3 +1,4 @@
+import sqlalchemy as alchemy
 from sqlalchemy import create_engine, Table, Column, Enum, Integer, String, MetaData, ForeignKey, ForeignKeyConstraint, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 # import views, logic
