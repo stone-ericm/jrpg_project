@@ -48,7 +48,7 @@ rat = Enemy(
 fireball = Skill(
     name = "Fireball",
     purchase_cost = 0,
-    use_cost = 25,
+    use_cost = 10,
     damage_heal = 5,
     poisonous = False
     )
@@ -56,7 +56,7 @@ fireball = Skill(
 quick_heal = Skill(
     name = "Quick Heal",
     purchase_cost = 0,
-    use_cost = 30,
+    use_cost = 8,
     damage_heal = -10,
     poisonous = False
     )
