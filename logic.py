@@ -8,6 +8,7 @@ import views
 from termcolor import colored, cprint
 import time
 import battle
+import demo
 
 Session = alchemy.orm.sessionmaker(bind=engine)
 session = Session()
@@ -28,13 +29,17 @@ class GameState:
       if choice.lower() == 'n':
         for each in views.intro:
           print (each)
-          cprint("[press Enter to continue]", "grey")
+          print(views.cont)
           input()
+        print("Do-do-do-do-da-dodo")
+        print("Not Golden Sun")
         new = Player(gender = views.gender(self),
                     name = views.name(),
                     level = 10,
                     hp = 50,
+                    max_hp = 50,
                     mp = 9,
+                    max_mp = 9,
                     strength = 50,
                     fortitude = 50,
                     agility = 45,
@@ -54,6 +59,7 @@ class GameState:
               break
             elif choice == 'n':
               break
+        break
       elif choice.lower() == 'c':
         if save_files:
           for index, each in enumerate(save_files, start=1):
@@ -62,10 +68,15 @@ class GameState:
           if int(choice) in range(1, len(save_files)+1):
             new = save_files[int(choice)-1]
             skills = [session.query(Skill).filter_by(id = each.skill_id).all()[0] for each in session.query(SkillOwnership).filter_by(player_id = new.id).all()]
+            break
         else:
           print("You have no saved games.")
+          input(views.cont)
       else:
-        print("Sorry I didn't understand that.")
-      
+        print(views.try_again)
+        input(views.cont)
+    choice = demo.run(new, skills)
+    if choice == 'battle':
       battle.Battle(new, skills).encounter()
-      break
+      
+      # town.town(new)

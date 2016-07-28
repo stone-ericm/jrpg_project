@@ -50,7 +50,8 @@ class Battle:
             if dodge in self.dodge_options:
                 break
             else:
-                views.try_again
+                print(views.try_again)
+                input(views.cont)
         if dodge == random.choice(self.dodge_options):
             print("You narrowly dodged {}'s attack!".format(self.enemy.name))
         else:
@@ -96,12 +97,14 @@ class Battle:
                                             damage = int(((2*self.player.level+10)/250) * (self.player.strength/self.enemy.fortitude) * damage + 2)
                                             break
                                         except IndexError:
-                                            views.try_again
+                                            print(views.try_again)
+                                            input(views.cont)
                                     else:
                                         print("You do not have enough mp!")
                                         return self.player_attack()
                                 else:
-                                    views.try_again
+                                    print(views.try_again)
+                                    input(views.cont)
                             except ValueError:
                                 if attack.lower() == 'r':
                                     return self.player_attack()
@@ -109,7 +112,8 @@ class Battle:
                     elif choice.lower() == 'r':
                         return self.player_attack()
                     else:
-                        views.try_again
+                        print(views.try_again)
+                        input(views.cont)
                 if damage > 0:
                     self.enemy.hp -= damage
                     if self.enemy.hp > 0:
@@ -148,21 +152,24 @@ class Battle:
                                 # print("HELP?")
                                 break
                             except IndexError:
-                                views.try_again
+                                print(views.try_again)
                         else:
-                            views.try_again
+                            print(views.try_again)
+                            input(views.cont)
                     except ValueError:
                         if item_use.lower() == 'r':
                             return self.player_attack()
                         else:
-                            views.try_again
+                            print(views.try_again)
+                            input(views.cont)
                 break
             elif choice.lower() == 'r':
                 if self.escape_battle() == True:
                     return "escaped"
                 break
             else:
-                views.try_again
+                print(views.try_again)
+                input(views.cont)
     
     def encounter(self):
         print("An enemy {} has appeared!".format(self.enemy.name))
